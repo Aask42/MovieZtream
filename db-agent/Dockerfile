@@ -1,33 +1,24 @@
-# install Java7 from http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-linux-x64.rpm
-
-FROM centos:centos7
+FROM alpine:latest
 
 MAINTAINER Carlos Doki (carlosdoki@gmail.com)
 
-#hack for centos docker bug
+RUN apk update && apk add unzip openjdk8 iproute2 curl jq
 RUN mkdir -p /run/lock
+ADD user.dat /
 
-#JDK
-RUN mkdir -p /arquivos
-ADD unzip-6.0-13.el7.x86_64.rpm /arquivos
-RUN rpm -Uvh /arquivos/unzip-6.0-13.el7.x86_64.rpm
-
-ADD jdk-7u80-linux-x64.rpm /arquivos
-RUN rpm -Uvh /arquivos/jdk-7u80-linux-x64.rpm
-
-RUN rm /arquivos/jdk-7u80-linux-x64.rpm
-ENV JAVA_HOME /usr/java/default
-ENV PATH $PATH:$JAVA_HOME/bin
+WORKDIR /
 
 #Agent Install
 ENV AGENT_HOME /dbagent
-ADD dbagent.zip /
-RUN unzip /dbagent.zip -d ${AGENT_HOME}
-RUN rm dbagent.zip
 
-RUN rm -Rf /arquivos
-
+RUN export access_token=$(curl -X POST -d @user.dat https://identity.msrv.saas.appdynamics.com/v2.0/oauth/token | jq .access_token ) && \
+    export header=$( echo "Authorization: Bearer ${access_token/$\"/}" | sed -e "s/\"//g")  && \
+    export dbagent=$(curl -s https://download.appdynamics.com/download/downloadfilelatest/ | jq  ".[] | .download_path" |grep db-agent -m 1 | sed -e "s/\"//g") && \
+    curl -L -O -H "$header" $dbagent && \
+    mv db-agent*.zip dbagent.zip && \
+    unzip /dbagent.zip -d ${AGENT_HOME}  && \
+    rm dbagent.zip 
 ADD startup.sh /
 RUN chmod +x /startup.sh
 WORKDIR /
-CMD ["/bin/bash","/startup.sh"]
+CMD ["/bin/sh","/startup.sh"]
