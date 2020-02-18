@@ -42,6 +42,6 @@ if [ -n "${rt}" ]; then
 			export TIER_NAME="mz_rt";
 		fi
 fi
-export MACHINE_AGENT_OPTS="-Dappdynamics.controller.hostName=${CONTROLLER} -Dappdynamics.agent.accountAccessKey=${CONTROLLER_KEY} -Dappdynamics.controller.port=${APPD_PORT} -Dappdynamics.agent.applicationName=${APP_NAME} -Dappdynamics.sim.enabled=true -Dappdynamics.controller.ssl.enabled=${CONTROLLER_SSL};
-export AGENT_OPTS="-Dappdynamics.controller.hostName=${CONTROLLER} -Dappdynamics.controller.port=${APPD_PORT} -Dappdynamics.agent.applicationName=${APP_NAME} -Dappdynamics.agent.tierName=${TIER_NAME} -Dappdynamics.agent.nodeName=${NODE_NAME}" -Dappdynamics.agent.accountAccessKey=${CONTROLLER_KEY} -Dappdynamics.controller.ssl.enabled=${CONTROLLER_SSL};
+export MACHINE_AGENT_OPTS="-Dappdynamics.controller.hostName=${CONTROLLER} -Dappdynamics.agent.accountAccessKey=${CONTROLLER_KEY} -Dappdynamics.controller.port=${APPD_PORT} -Dappdynamics.agent.applicationName=${APP_NAME} -Dappdynamics.sim.enabled=true -Dappdynamics.controller.ssl.enabled=${CONTROLLER_SSL}";
+export AGENT_OPTS="-Dappdynamics.controller.hostName=${CONTROLLER} -Dappdynamics.controller.port=${APPD_PORT} -Dappdynamics.agent.applicationName=${APP_NAME} -Dappdynamics.agent.tierName=${TIER_NAME} -Dappdynamics.agent.nodeName=${NODE_NAME} -Dappdynamics.agent.accountAccessKey=${CONTROLLER_KEY} -Dappdynamics.controller.ssl.enabled=${CONTROLLER_SSL}";
 export JAVA_OPTS="${AGENT_OPTS} -Xmx512m -XX:MaxPermSize=128m -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager";

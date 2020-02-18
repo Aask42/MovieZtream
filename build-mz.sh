@@ -41,6 +41,7 @@ echo "Building MovieZtream container (appdynamics/edu-movieztream)"
 echo
 cp user.dat mz
 (cd mz; docker build -t carlosdoki/edu-movieztream .)
+rm -f mz/user.dat
 
 
 # Build db-agent image then tidy up
@@ -49,6 +50,7 @@ echo "Building db-agent container (appdynamics/edu-db-agent)"
 echo
 cp user.dat db-agent
 (cd db-agent; docker build -t carlosdoki/edu-db-agent .)
+rm -f db-agent/user.dat
 
 # Build JMeter load image
 echo 
@@ -79,6 +81,7 @@ docker run -d -p 80:80 --name ui --link sv:sv --link rt:rt  -e ui=true -e CONTRO
 # lastly, run the JMeter load container
 echo "Starting the JMeter load container: mz-load..."
 docker run -d --name mz-load --link ui:ui carlosdoki/edu-jmeter
+rm -f user.dat
 
 echo
 echo "All containers started!"

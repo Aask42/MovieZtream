@@ -12,6 +12,7 @@ RUN curl http://apache.mirrors.ionfish.org/tomcat/tomcat-8/v8.5.51/bin/apache-to
     tar xvzf apache-tomcat-8*tar.gz --strip-components=1 && \
     rm apache-tomcat-*.tar.gz && \
     ln -s /apache-tomcat-8.5.51 /tomcat
+ENV CATALINA_HOME /tomcat
 
 RUN rm -Rf /tomcat/conf/server.xml && rm -Rf /tomcat/conf/tomcat-users.xml
 ADD server.xml /tomcat/conf/
