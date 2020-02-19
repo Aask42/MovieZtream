@@ -11,4 +11,4 @@ if [ -n "$CONTAINERS" ]
 fi
 sleep 5
 docker rm db-agent db  rt sv ui mz-load
-docker rmi appdynamics/edu-movieztream appdynamics/edu-db-agent appdynamics/edu-jmeter
+docker rmi carlosdoki/edu-movieztream carlosdoki/edu-db-agent carlosdoki/edu-jmeter

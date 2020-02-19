@@ -22,4 +22,3 @@ cd ${CATALINA_HOME}/bin;
 java -javaagent:${CATALINA_HOME}/appagent/javaagent.jar ${JAVA_OPTS} -cp ${CATALINA_HOME}/bin/bootstrap.jar:${CATALINA_HOME}/bin/tomcat-juli.jar org.apache.catalina.startup.Bootstrap
 
 cd ${CWD}
-/start-machine-agent.sh
