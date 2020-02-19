@@ -3,20 +3,23 @@ FROM alpine:latest
 MAINTAINER Carlos Doki (carlosdoki@gmail.com)
 
 RUN apk update && apk add unzip openjdk8 iproute2 curl jq
-RUN mkdir -p /run/lock
+RUN mkdir -p /run/lock && mkdir -p /tomcat
 ADD user.dat /
 
-WORKDIR /
+WORKDIR /tomcat
+
 # INSTALL TOMCAT
 RUN curl http://apache.mirrors.ionfish.org/tomcat/tomcat-8/v8.5.51/bin/apache-tomcat-8.5.51.tar.gz -O && \
     tar xvzf apache-tomcat-8*tar.gz --strip-components=1 && \
-    rm apache-tomcat-*.tar.gz && \
-    ln -s /apache-tomcat-8.5.51 /tomcat
+    rm apache-tomcat-*.tar.gz
+#    ln -s /apache-tomcat-8.5.51 /tomcat
 ENV CATALINA_HOME /tomcat
 
 RUN rm -Rf /tomcat/conf/server.xml && rm -Rf /tomcat/conf/tomcat-users.xml
 ADD server.xml /tomcat/conf/
 ADD tomcat-users.xml /tomcat/conf/
+
+WORKDIR /
 
 RUN export access_token=$(curl -X POST -d @user.dat https://identity.msrv.saas.appdynamics.com/v2.0/oauth/token | jq .access_token ) && \
     export header=$( echo "Authorization: Bearer ${access_token/$\"/}" | sed -e "s/\"//g")  && \

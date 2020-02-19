@@ -81,7 +81,7 @@ docker run -d -p 80:80 --name ui --link sv:sv --link rt:rt  -e ui=true -e CONTRO
 # lastly, run the JMeter load container
 echo "Starting the JMeter load container: mz-load..."
 docker run -d --name mz-load --link ui:ui carlosdoki/edu-jmeter
-rm -f user.dat
+rm -f user2.dat
 
 echo
 echo "All containers started!"
