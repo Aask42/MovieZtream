@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 # start the load to MovieZtream
 cd /appdynamics/jmeter/scripts

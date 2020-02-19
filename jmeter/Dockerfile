@@ -1,25 +1,16 @@
-# install Java7 from http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-linux-x64.rpm
-
-FROM centos:centos7
+FROM alpine:latest
 
 MAINTAINER Carlos Doki (carlosdoki@gmail.com)
 
+RUN apk update && apk add openjdk8
+
 #hack for centos docker bug
-RUN mkdir -p /run/lock
-RUN mkdir -p /arquivos
-
-#JDK
-ADD jdk-7u80-linux-x64.rpm /arquivos
-RUN rpm -Uvh /arquivos/jdk-7u80-linux-x64.rpm
-
-RUN rm -Rf /arquivos
-ENV JAVA_HOME /usr/java/default
-ENV PATH $PATH:$JAVA_HOME/bin
+RUN mkdir -p /run/lock 
 
 # Prepare appdynamics user and directory
 RUN mkdir -p /appdynamics
-RUN groupadd -r appdynamics
-RUN useradd --create-home --gid appdynamics appdynamics
+RUN addgroup appdynamics
+RUN adduser -D --ingroup appdynamics appdynamics
 
 # Add JMeter and scripts
 RUN mkdir -p /appdynamics/jmeter

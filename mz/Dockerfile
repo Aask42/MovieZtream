@@ -1,77 +1,55 @@
-# install Java7 from http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-linux-x64.rpm
-
-FROM centos:centos7
+FROM alpine:latest
 
 MAINTAINER Carlos Doki (carlosdoki@gmail.com)
 
-#hack for centos docker bug
-RUN mkdir -p /run/lock
-RUN mkdir -p /arquivos
+RUN apk update && apk add unzip openjdk8 iproute2 curl jq
+RUN mkdir -p /run/lock && mkdir -p /tomcat
+ADD user.dat /
 
-ADD unzip-6.0-13.el7.x86_64.rpm /arquivos
-RUN rpm -Uvh /arquivos/unzip-6.0-13.el7.x86_64.rpm
-
-#JDK
-ADD jdk-7u80-linux-x64.rpm /arquivos
-RUN rpm -Uvh /arquivos/jdk-7u80-linux-x64.rpm
-
-ENV JAVA_HOME /usr/java/default
-ENV PATH $PATH:$JAVA_HOME/bin
-
-#TOMCAT
-ENV TOMCAT_MAJOR_VERSION 8
-ENV TOMCAT_MINOR_VERSION 8.0.14
-ENV CATALINA_HOME /tomcat
-
+WORKDIR /tomcat
 
 # INSTALL TOMCAT
-ADD apache-tomcat-8.0.14.zip /arquivos
-RUN unzip /arquivos/apache-tomcat-*.zip -d /
-RUN rm -Rf /arquivos/apache-tomcat-*.zip
-RUN mv /apache-tomcat* /tomcat
-RUN cd /tomcat/bin;chmod +x *.sh
-RUN rm -Rf /tomcat/conf/server.xml
-RUN rm -Rf /tomcat/conf/tomcat-users.xml
+RUN curl http://apache.mirrors.ionfish.org/tomcat/tomcat-8/v8.5.51/bin/apache-tomcat-8.5.51.tar.gz -O && \
+    tar xvzf apache-tomcat-8*tar.gz --strip-components=1 && \
+    rm apache-tomcat-*.tar.gz
+#    ln -s /apache-tomcat-8.5.51 /tomcat
+ENV CATALINA_HOME /tomcat
+
+RUN rm -Rf /tomcat/conf/server.xml && rm -Rf /tomcat/conf/tomcat-users.xml
 ADD server.xml /tomcat/conf/
 ADD tomcat-users.xml /tomcat/conf/
 
-#Agent Install
-ADD AppServerAgent.zip /
-RUN unzip /AppServerAgent.zip -d /tomcat/appagent
-RUN rm AppServerAgent.zip
+WORKDIR /
+
+RUN export access_token=$(curl -X POST -d @user.dat https://identity.msrv.saas.appdynamics.com/v2.0/oauth/token | jq .access_token ) && \
+    export header=$( echo "Authorization: Bearer ${access_token/$\"/}" | sed -e "s/\"//g")  && \
+    export javaagent=$(curl -s https://download.appdynamics.com/download/downloadfilelatest/ | jq  ".[] | .download_path" |grep sun-jvm | sed -e "s/\"//g") && \
+    curl -L -O -H "$header" $javaagent && mv AppServerAgent-*.zip AppServerAgent.zip && \
+    unzip /AppServerAgent.zip -d /tomcat/appagent && \
+    rm AppServerAgent.zip
 
 #Machine Agent Install
 ENV MACHINE_AGENT_HOME /machine_agent
-ADD MachineAgent.zip /
-ADD monitor.xml /
+RUN export access_token=$(curl -X POST -d @user.dat https://identity.msrv.saas.appdynamics.com/v2.0/oauth/token | jq .access_token ) && \
+    export header=$( echo "Authorization: Bearer ${access_token/$\"/}" | sed -e "s/\"//g")  && \
+    export machine=$(curl -s https://download.appdynamics.com/download/downloadfilelatest/ | jq  ".[] | .download_path" |grep machineagent-bundle-64bit-linux* | sed -e "s/\"//g") && \
+    curl -L -O -H "$header" $machine && mv machine*.zip MachineAgent.zip && \
+    unzip MachineAgent.zip -d ${MACHINE_AGENT_HOME} && \
+    rm MachineAgent.zip
 ADD analytics-agent.properties /
-RUN unzip /MachineAgent.zip -d ${MACHINE_AGENT_HOME}
-RUN mv /monitor.xml ${MACHINE_AGENT_HOME}/monitors/analytics-agent
 RUN mv /analytics-agent.properties ${MACHINE_AGENT_HOME}/monitors/analytics-agent/conf
-RUN rm MachineAgent.zip
 
 RUN mkdir /apps
 ADD apps /apps/
 ADD startup.sh /
 ADD env.sh /
 ADD start-machine-agent.sh /
-RUN chmod +x /startup.sh
-RUN chmod +x /start-machine-agent.sh
-RUN chmod +x /env.sh
-
-# Install JMeter for load generation - we install into the /appdynamics
-# directory because that is where the application expects jmeter to be. This
-# is where it is installed in the load container.
-ADD jmeter /appdynamics/jmeter
-RUN chmod a+x /appdynamics/jmeter/bin/*.sh
-
-RUN rm -Rf /arquivos
-
+RUN chmod +x /startup.sh && chmod +x /start-machine-agent.sh && chmod +x /env.sh && rm -f user.dat
 WORKDIR /
 
-
-CMD ["/bin/bash","/startup.sh"]
+CMD ["/bin/sh","/startup.sh"]
 
 EXPOSE 80	
 EXPOSE 8080
 EXPOSE 8009
+
