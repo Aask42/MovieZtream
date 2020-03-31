@@ -43,6 +43,9 @@ RUN mkdir /apps
 ADD apps /apps/
 ADD startup.sh /
 ADD env.sh /
+
+RUN mkdir -p /appdynamics/jmeter
+ADD jmeter /appdynamics/jmeter
 ADD start-machine-agent.sh /
 RUN chmod +x /startup.sh && chmod +x /start-machine-agent.sh && chmod +x /env.sh && rm -f user.dat
 WORKDIR /

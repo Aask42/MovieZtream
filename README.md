@@ -1,4 +1,6 @@
 # Need install git lfs
+https://git-lfs.github.com/
+
 
 # AppDynamics Education Docker Containers
 Docker containers for installing and running Education application (MovieZtream). These containers allow you to install and run the complete system with persistent data for the controller database.

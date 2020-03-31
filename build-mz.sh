@@ -29,7 +29,7 @@ echo
 echo
 if [ "$USER_NAME" != "" ] && [ "$PASSWORD" != "" ];
 then
-  echo '{"username": "'$USER_NAME'" ,"password": "'$PASSWORD'","scopes": [ "download"]}' > user2.dat
+  echo '{"username": "'$USER_NAME'" ,"password": "'$PASSWORD'","scopes": [ "download"]}' > user.dat
 else
   echo "Username or Password missing"
   exit
@@ -81,7 +81,7 @@ docker run -d -p 80:80 --name ui --link sv:sv --link rt:rt  -e ui=true -e CONTRO
 # lastly, run the JMeter load container
 echo "Starting the JMeter load container: mz-load..."
 docker run -d --name mz-load --link ui:ui carlosdoki/edu-jmeter
-rm -f user2.dat
+rm -f user.dat
 
 echo
 echo "All containers started!"
