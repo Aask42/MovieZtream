@@ -43,9 +43,9 @@ sleep 60
 echo
 echo "Starting AppDynamics machine agents on MovieZtream containers..."
 echo
-docker exec rt /bin/bash -c /start-machine-agent.sh
-docker exec sv /bin/bash -c /start-machine-agent.sh
-docker exec ui /bin/bash -c /start-machine-agent.sh
+docker exec rt /bin/sh -c /start-machine-agent.sh
+docker exec sv /bin/sh -c /start-machine-agent.sh
+docker exec ui /bin/sh -c /start-machine-agent.sh
 
 echo
 echo "All containers started! You can access the AppDynamics Controller at $DOCKER_HOST:8090"
